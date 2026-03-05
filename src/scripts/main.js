@@ -20,12 +20,15 @@ function firstPromise() {
 }
 
 function secondPromise() {
-  return new Promise((resolve, reject) => {
-    document.addEventListener('click', (e) => {
+  return new Promise((resolve) => {
+    function handleClick(e) {
       if (e.button === 0 || e.button === 2) {
+        document.removeEventListener('click', handleClick);
         resolve('Second promise was resolved');
       }
-    });
+    }
+
+    document.addEventListener('click', handleClick);
   });
 }
 
