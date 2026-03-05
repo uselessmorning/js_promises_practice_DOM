@@ -3,15 +3,19 @@
 function firstPromise() {
   return new Promise((resolve, reject) => {
     const timerId = setTimeout(() => {
+      document.removeEventListener('click', handleClick);
       reject(new Error('First promise was rejected'));
     }, 3000);
 
-    document.addEventListener('click', (e) => {
+    function handleClick(e) {
       if (e.button === 0) {
         clearTimeout(timerId);
+        document.removeEventListener('click', handleClick);
         resolve('First promise was resolved');
       }
-    });
+    }
+
+    document.addEventListener('click', handleClick);
   });
 }
 
@@ -26,23 +30,26 @@ function secondPromise() {
 }
 
 function thirdPromise() {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     let isLeftClicked = false;
     let isRightClicked = false;
 
-    document.addEventListener('mousedown', (e) => {
-      if (e.button === 2) {
-        isRightClicked = true;
-      }
-
+    function handleMouseDown(e) {
       if (e.button === 0) {
         isLeftClicked = true;
       }
 
+      if (e.button === 2) {
+        isRightClicked = true;
+      }
+
       if (isLeftClicked && isRightClicked) {
+        document.removeEventListener('mousedown', handleMouseDown);
         resolve('Third promise was resolved');
       }
-    });
+    }
+
+    document.addEventListener('mousedown', handleMouseDown);
   });
 }
 
@@ -56,7 +63,7 @@ function showNotification(message, className) {
 
 firstPromise()
   .then((msg) => showNotification(msg, 'success'))
-  .catch((msg) => showNotification(msg, 'error'));
+  .catch((err) => showNotification(err.message, 'error'));
 
 secondPromise().then((msg) => showNotification(msg, 'success'));
 thirdPromise().then((msg) => showNotification(msg, 'success'));
